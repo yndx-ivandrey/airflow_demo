@@ -1,0 +1,19 @@
+[2023-10-21T16:59:11.497+0000] {taskinstance.py:1159} INFO - Dependencies all met for dep_context=non-requeueable deps ti=<TaskInstance: Theatre_ETL.fetch_changed_movies_ids scheduled__2023-10-21T16:58:09.417875+00:00 [queued]>
+[2023-10-21T16:59:11.503+0000] {taskinstance.py:1159} INFO - Dependencies all met for dep_context=requeueable deps ti=<TaskInstance: Theatre_ETL.fetch_changed_movies_ids scheduled__2023-10-21T16:58:09.417875+00:00 [queued]>
+[2023-10-21T16:59:11.504+0000] {taskinstance.py:1361} INFO - Starting attempt 1 of 1
+[2023-10-21T16:59:11.516+0000] {taskinstance.py:1382} INFO - Executing <Task(PythonOperator): fetch_changed_movies_ids> on 2023-10-21 16:58:09.417875+00:00
+[2023-10-21T16:59:11.525+0000] {standard_task_runner.py:57} INFO - Started process 742 to run task
+[2023-10-21T16:59:11.531+0000] {standard_task_runner.py:84} INFO - Running: ['***', 'tasks', 'run', 'Theatre_ETL', 'fetch_changed_movies_ids', 'scheduled__2023-10-21T16:58:09.417875+00:00', '--job-id', '55', '--raw', '--subdir', 'DAGS_FOLDER/test_movie_etl.py', '--cfg-path', '/tmp/tmp2888tixo']
+[2023-10-21T16:59:11.535+0000] {standard_task_runner.py:85} INFO - Job 55: Subtask fetch_changed_movies_ids
+[2023-10-21T16:59:11.587+0000] {task_command.py:416} INFO - Running <TaskInstance: Theatre_ETL.fetch_changed_movies_ids scheduled__2023-10-21T16:58:09.417875+00:00 [running]> on host 69e55cb2bf46
+[2023-10-21T16:59:11.674+0000] {taskinstance.py:1662} INFO - Exporting env vars: AIRFLOW_CTX_DAG_OWNER='***' AIRFLOW_CTX_DAG_ID='Theatre_ETL' AIRFLOW_CTX_TASK_ID='fetch_changed_movies_ids' AIRFLOW_CTX_EXECUTION_DATE='2023-10-21T16:58:09.417875+00:00' AIRFLOW_CTX_TRY_NUMBER='1' AIRFLOW_CTX_DAG_RUN_ID='scheduled__2023-10-21T16:58:09.417875+00:00'
+[2023-10-21T16:59:11.682+0000] {base.py:73} INFO - Using connection ID 'postgres_db' for task execution.
+[2023-10-21T16:59:11.702+0000] {test_movie_etl.py:36} INFO - SQL query: 
+        SELECT m.id as id, m.updated_at as updated_at FROM content.movies_movie m 
+        WHERE m.updated_at > 2023-10-21 16:56:07.498616+00:00
+        ORDER BY m.updated_at asc
+    
+[2023-10-21T16:59:11.706+0000] {python.py:194} INFO - Done. Returned value was: ()
+[2023-10-21T16:59:11.726+0000] {taskinstance.py:1400} INFO - Marking task as SUCCESS. dag_id=Theatre_ETL, task_id=fetch_changed_movies_ids, execution_date=20231021T165809, start_date=20231021T165911, end_date=20231021T165911
+[2023-10-21T16:59:11.746+0000] {local_task_job_runner.py:228} INFO - Task exited with return code 0
+[2023-10-21T16:59:11.787+0000] {taskinstance.py:2778} INFO - 0 downstream tasks scheduled from follow-on schedule check

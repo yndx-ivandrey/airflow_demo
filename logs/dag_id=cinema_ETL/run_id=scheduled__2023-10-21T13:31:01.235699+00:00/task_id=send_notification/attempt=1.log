@@ -1,0 +1,13 @@
+[2023-10-21T13:32:12.247+0000] {taskinstance.py:1159} INFO - Dependencies all met for dep_context=non-requeueable deps ti=<TaskInstance: cinema_ETL.send_notification scheduled__2023-10-21T13:31:01.235699+00:00 [queued]>
+[2023-10-21T13:32:12.254+0000] {taskinstance.py:1159} INFO - Dependencies all met for dep_context=requeueable deps ti=<TaskInstance: cinema_ETL.send_notification scheduled__2023-10-21T13:31:01.235699+00:00 [queued]>
+[2023-10-21T13:32:12.255+0000] {taskinstance.py:1361} INFO - Starting attempt 1 of 1
+[2023-10-21T13:32:12.263+0000] {taskinstance.py:1382} INFO - Executing <Task(TelegramOperator): send_notification> on 2023-10-21 13:31:01.235699+00:00
+[2023-10-21T13:32:12.268+0000] {standard_task_runner.py:57} INFO - Started process 3488 to run task
+[2023-10-21T13:32:12.273+0000] {standard_task_runner.py:84} INFO - Running: ['***', 'tasks', 'run', 'cinema_ETL', 'send_notification', 'scheduled__2023-10-21T13:31:01.235699+00:00', '--job-id', '84', '--raw', '--subdir', 'DAGS_FOLDER/test_movie_etl.py', '--cfg-path', '/tmp/tmpbk46mk31']
+[2023-10-21T13:32:12.281+0000] {standard_task_runner.py:85} INFO - Job 84: Subtask send_notification
+[2023-10-21T13:32:12.324+0000] {task_command.py:416} INFO - Running <TaskInstance: cinema_ETL.send_notification scheduled__2023-10-21T13:31:01.235699+00:00 [running]> on host 9f6b2b4cbb27
+[2023-10-21T13:32:12.381+0000] {taskinstance.py:1662} INFO - Exporting env vars: AIRFLOW_CTX_DAG_OWNER='***' AIRFLOW_CTX_DAG_ID='cinema_ETL' AIRFLOW_CTX_TASK_ID='send_notification' AIRFLOW_CTX_EXECUTION_DATE='2023-10-21T13:31:01.235699+00:00' AIRFLOW_CTX_TRY_NUMBER='1' AIRFLOW_CTX_DAG_RUN_ID='scheduled__2023-10-21T13:31:01.235699+00:00'
+[2023-10-21T13:32:12.658+0000] {_client.py:1729} INFO - HTTP Request: POST https://api.telegram.org/bot6489792840:AAGiXzh3oHEGvVDVJC03SdAFvI198G2wdII/sendMessage "HTTP/1.1 200 OK"
+[2023-10-21T13:32:12.671+0000] {taskinstance.py:1400} INFO - Marking task as SUCCESS. dag_id=cinema_ETL, task_id=send_notification, execution_date=20231021T133101, start_date=20231021T133212, end_date=20231021T133212
+[2023-10-21T13:32:12.702+0000] {local_task_job_runner.py:228} INFO - Task exited with return code 0
+[2023-10-21T13:32:12.722+0000] {taskinstance.py:2778} INFO - 0 downstream tasks scheduled from follow-on schedule check

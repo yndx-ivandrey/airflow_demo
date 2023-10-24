@@ -1,0 +1,105 @@
+[2023-10-21T16:56:17.948+0000] {taskinstance.py:1159} INFO - Dependencies all met for dep_context=non-requeueable deps ti=<TaskInstance: Theatre_ETL.enrich_results scheduled__2023-10-21T16:55:09.417875+00:00 [queued]>
+[2023-10-21T16:56:17.955+0000] {taskinstance.py:1159} INFO - Dependencies all met for dep_context=requeueable deps ti=<TaskInstance: Theatre_ETL.enrich_results scheduled__2023-10-21T16:55:09.417875+00:00 [queued]>
+[2023-10-21T16:56:17.955+0000] {taskinstance.py:1361} INFO - Starting attempt 1 of 1
+[2023-10-21T16:56:17.963+0000] {taskinstance.py:1382} INFO - Executing <Task(PythonOperator): enrich_results> on 2023-10-21 16:55:09.417875+00:00
+[2023-10-21T16:56:17.970+0000] {standard_task_runner.py:57} INFO - Started process 636 to run task
+[2023-10-21T16:56:17.974+0000] {standard_task_runner.py:84} INFO - Running: ['***', 'tasks', 'run', 'Theatre_ETL', 'enrich_results', 'scheduled__2023-10-21T16:55:09.417875+00:00', '--job-id', '36', '--raw', '--subdir', 'DAGS_FOLDER/test_movie_etl.py', '--cfg-path', '/tmp/tmp7okhurmk']
+[2023-10-21T16:56:17.981+0000] {standard_task_runner.py:85} INFO - Job 36: Subtask enrich_results
+[2023-10-21T16:56:18.061+0000] {task_command.py:416} INFO - Running <TaskInstance: Theatre_ETL.enrich_results scheduled__2023-10-21T16:55:09.417875+00:00 [running]> on host 69e55cb2bf46
+[2023-10-21T16:56:18.141+0000] {taskinstance.py:1662} INFO - Exporting env vars: AIRFLOW_CTX_DAG_OWNER='***' AIRFLOW_CTX_DAG_ID='Theatre_ETL' AIRFLOW_CTX_TASK_ID='enrich_results' AIRFLOW_CTX_EXECUTION_DATE='2023-10-21T16:55:09.417875+00:00' AIRFLOW_CTX_TRY_NUMBER='1' AIRFLOW_CTX_DAG_RUN_ID='scheduled__2023-10-21T16:55:09.417875+00:00'
+[2023-10-21T16:56:18.157+0000] {test_movie_etl.py:110} INFO - Movies IDs need to enrich: ('1ef9a25f-2bfa-403e-8953-5d60341ca49d',)
+[2023-10-21T16:56:18.168+0000] {base.py:73} INFO - Using connection ID 'postgres_db' for task execution.
+[2023-10-21T16:56:18.181+0000] {test_movie_etl.py:176} INFO - SQL query: 
+        WITH actors_list as (
+            SELECT m.id,
+            string_agg(TRIM(CONCAT(a.last_name || ' ', a.first_name)), ',') as actors,
+            string_agg(a.id::varchar, ',') as actors_ids
+                FROM content.movies_movie m
+                LEFT JOIN content.movies_movie_actors ma on m.id = ma.movie_id
+                LEFT JOIN content.movies_person a on ma.person_id = a.id
+            GROUP BY m.id
+        ),
+        directors_list as (
+            SELECT m.id,
+            string_agg(TRIM(CONCAT(a.last_name || ' ', a.first_name)), ',') as directors,
+            string_agg(a.id::varchar, ',') as directors_ids
+                FROM content.movies_movie m
+                LEFT JOIN content.movies_movie_directors ma on m.id = ma.movie_id
+                LEFT JOIN content.movies_person a on ma.person_id = a.id
+            GROUP BY m.id
+        ),
+        writers_list as (
+            SELECT m.id,
+            string_agg(TRIM(CONCAT(a.last_name || ' ', a.first_name)), ',') as writers,
+            string_agg(a.id::varchar, ',') as writers_ids
+                FROM content.movies_movie m
+                LEFT JOIN content.movies_movie_writers mw on m.id = mw.movie_id
+                LEFT JOIN content.movies_person a on mw.person_id = a.id
+            GROUP BY m.id
+        ),
+        genres_list as (
+            SELECT m.id,
+            string_agg(g.title, ',') as genres,
+            string_agg(g.id::varchar, ',') as genres_ids
+                FROM content.movies_movie m
+                LEFT JOIN content.movies_movie_genres mg on m.id = mg.movie_id
+                LEFT JOIN content.movies_genre g on mg.genre_id = g.id
+            GROUP BY m.id
+        )
+        SELECT m.id as id,
+        m.imdb_rating as imdb_rating,
+        m.title as title,
+        m.is_suspicious as is_suspicious,
+        m.description as description,
+        actors_list.actors as actors_names,
+        actors_list.actors_ids as actors_ids,
+        directors_list.directors as directors_names,
+        directors_list.directors_ids as directors_ids,
+        writers_list.writers as writers_names,
+        writers_list.writers_ids as writers_ids,
+        genres_list.genres as genres_titles,
+        genres_list.genres_ids as genres_ids
+        FROM content.movies_movie m
+        LEFT JOIN actors_list ON m.id = actors_list.id
+        LEFT JOIN writers_list ON m.id = writers_list.id
+        LEFT JOIN directors_list ON m.id = directors_list.id
+        LEFT JOIN genres_list ON m.id = genres_list.id
+        WHERE m.id::varchar IN %(movies)s
+    
+[2023-10-21T16:56:18.214+0000] {test_movie_etl.py:184} INFO - Enriched movies ready for ES: [
+    {
+        "id": "1ef9a25f-2bfa-403e-8953-5d60341ca49d",
+        "imdb_rating": 4.6,
+        "title": "You're a Star!!!",
+        "is_suspicious": false,
+        "description": "TV show to find the Republic of Ireland's entry for the Eurovision. Winner is decided by public vote.",
+        "actors_names": "Simon Casey,Mickey Harte,Ray D'Arcy,Michael Leonard",
+        "actors_ids": "0df9fb56-176c-4ae8-a7d1-d41d583b3d54,fc2022da-ba01-484e-8c3c-f7efa7c998c3,0ad4733a-7d51-467e-8bf7-1432cde59dfa,35e19893-f407-4d4b-b2a0-5162e0c49251",
+        "directors_names": "Aaron Barzman",
+        "directors_ids": "e1fc484d-8b9f-4ac9-8a89-bc84c444ce01",
+        "writers_names": "Aarno Sulkanen",
+        "writers_ids": "8fcdb919-b6d2-4cbc-be75-6484f626ed76",
+        "genres_titles": "Music",
+        "genres_ids": "2c689602-c845-4f3c-8786-2b593a63d613"
+    }
+]
+[2023-10-21T16:56:18.215+0000] {python.py:194} INFO - Done. Returned value was: [
+    {
+        "id": "1ef9a25f-2bfa-403e-8953-5d60341ca49d",
+        "imdb_rating": 4.6,
+        "title": "You're a Star!!!",
+        "is_suspicious": false,
+        "description": "TV show to find the Republic of Ireland's entry for the Eurovision. Winner is decided by public vote.",
+        "actors_names": "Simon Casey,Mickey Harte,Ray D'Arcy,Michael Leonard",
+        "actors_ids": "0df9fb56-176c-4ae8-a7d1-d41d583b3d54,fc2022da-ba01-484e-8c3c-f7efa7c998c3,0ad4733a-7d51-467e-8bf7-1432cde59dfa,35e19893-f407-4d4b-b2a0-5162e0c49251",
+        "directors_names": "Aaron Barzman",
+        "directors_ids": "e1fc484d-8b9f-4ac9-8a89-bc84c444ce01",
+        "writers_names": "Aarno Sulkanen",
+        "writers_ids": "8fcdb919-b6d2-4cbc-be75-6484f626ed76",
+        "genres_titles": "Music",
+        "genres_ids": "2c689602-c845-4f3c-8786-2b593a63d613"
+    }
+]
+[2023-10-21T16:56:18.230+0000] {taskinstance.py:1400} INFO - Marking task as SUCCESS. dag_id=Theatre_ETL, task_id=enrich_results, execution_date=20231021T165509, start_date=20231021T165617, end_date=20231021T165618
+[2023-10-21T16:56:18.293+0000] {local_task_job_runner.py:228} INFO - Task exited with return code 0
+[2023-10-21T16:56:18.317+0000] {taskinstance.py:2778} INFO - 1 downstream tasks scheduled from follow-on schedule check
