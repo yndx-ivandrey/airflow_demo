@@ -9,7 +9,7 @@ docker compose -f docker-compose-airflow.yaml -f docker-compose.yaml up -d
 После этого создайте суперпользователя в Django админке и запустите приложение:
 
 ```bash
-cd django_admin 
+cd django_admin
 ```
 ```bash
 DJANGO_SUPERUSER_USERNAME=admin \
@@ -25,12 +25,16 @@ Apache Airflow будет доступен по адресу http://localhost:80
 
 ![login_airflow.png](images/login_airflow.png)
 
-В списке DAG-ов находим Theatre_ETL и с ним работаем. 
+В списке DAG-ов находим Theatre_ETL и с ним работаем.
 
 ![airflow-dag.png](images/airflow-dag.png)
 
 Для работы ETL необходимо определить соединение c postgres как на изображении:
 
 ![connection.png](images/connection.png)
+
+Для отправки сообщений в Telegram необходимо разеристирировать бота и определить соединение как на изображении:
+
+![tg_connection.jpg](images/tg_connection.jpg)
 
 ### Весь код находится в `dags/test_movie_etl.py`

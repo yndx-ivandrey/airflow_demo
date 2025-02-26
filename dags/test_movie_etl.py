@@ -2,7 +2,7 @@ import json
 from datetime import datetime, timedelta
 from airflow.models import DAG
 from airflow.operators.python import PythonOperator
-from airflow.hooks.postgres_hook import PostgresHook
+from airflow.providers.postgres.hooks.postgres import PostgresHook
 from airflow.models.taskinstance import TaskInstance
 from airflow.providers.telegram.operators.telegram import TelegramOperator
 from elasticsearch import Elasticsearch, helpers
@@ -24,7 +24,7 @@ MOVIE_TABLE = 'movies_movie'
 
 def fetch_changed_movies_ids(ti: TaskInstance):
     sql = f"""
-        SELECT m.id as id, m.updated_at as updated_at FROM {SCHEMA}.{MOVIE_TABLE} m 
+        SELECT m.id as id, m.updated_at as updated_at FROM {SCHEMA}.{MOVIE_TABLE} m
         WHERE m.updated_at > %s
         ORDER BY m.updated_at asc
     """
@@ -81,7 +81,7 @@ def fetch_changed_people_movies_ids(ti: TaskInstance):
         sql = f"""
             SELECT movie_id as id FROM {table}
             WHERE person_id IN (
-                SELECT p.id as id FROM {SCHEMA}.{PERSON_TABLE} p 
+                SELECT p.id as id FROM {SCHEMA}.{PERSON_TABLE} p
                 WHERE p.updated_at > %s
             )
         """
@@ -276,15 +276,12 @@ def write_to_es(ti):
     return len(movies)
 
 
-telegram_token = '6489792840:AAGiXzh3oHEGvVDVJC03SdAFvI198G2wdII'
-telegram_chat_id = '269105707'
-
-
 with DAG(
     dag_id='Theatre_ETL',
     schedule_interval=timedelta(minutes=1),
     start_date=datetime(year=2023, month=2, day=1),
     catchup=False,
+    max_active_runs=1,
 ) as dag:
 
     task_get_movies_ids = PythonOperator(
@@ -306,9 +303,8 @@ with DAG(
     write_to_es = PythonOperator(task_id='write_to_es', python_callable=write_to_es)
 
     send_notification = TelegramOperator(
+        telegram_conn_id='telegram_notify',
         task_id='send_notification',
-        token=telegram_token,
-        chat_id=telegram_chat_id,
         text='Было обновлено фильмов: {{ ti.xcom_pull(task_ids="write_to_es") }}',
     )
 
