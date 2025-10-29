@@ -1,7 +1,8 @@
 from datetime import timedelta, datetime
 from airflow.models import DAG
 from airflow.models.taskinstance import TaskInstance
-from airflow.operators.python import PythonOperator
+from airflow.providers.standard.operators.python import PythonOperator
+from airflow.providers.standard.operators.empty import EmptyOperator
 import logging
 
 
@@ -19,8 +20,8 @@ def second(ti: TaskInstance):
 
 with DAG(
     dag_id='simple_test_dag',
-    schedule_interval=None,
-    start_date=datetime(year=2023, month=2, day=1),
+    schedule=None,
+    start_date=datetime(year=2025, month=10, day=1),
     catchup=False,
 ) as dag:
 
@@ -31,5 +32,7 @@ with DAG(
         task_id='second_task', python_callable=second
     )
 
-    first_task >> second_task
+    # third_task = EmptyOperator(task_id='third_task')
+
+    first_task >> second_task # >> third_task
 

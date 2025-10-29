@@ -1,7 +1,7 @@
 import json
 from datetime import datetime, timedelta
 from airflow.models import DAG
-from airflow.operators.python import PythonOperator
+from airflow.providers.standard.operators.python import PythonOperator
 from airflow.providers.postgres.hooks.postgres import PostgresHook
 from airflow.models.taskinstance import TaskInstance
 from airflow.providers.telegram.operators.telegram import TelegramOperator
@@ -33,6 +33,8 @@ def fetch_changed_movies_ids(ti: TaskInstance):
     cursor = pg_conn.cursor()
 
     last_updated = ti.xcom_pull(key='movies_updated_state', include_prior_dates=True) or str(datetime.min)
+    if isinstance(last_updated, list):
+        last_updated = last_updated[-1]
     logging.info('SQL query: %s', sql % last_updated)
     cursor.execute(sql, (last_updated,))
     items = cursor.fetchall()
@@ -53,6 +55,8 @@ def fetch_changed_genres_movies_ids(ti: TaskInstance):
     cursor = pg_conn.cursor()
 
     last_updated = ti.xcom_pull(key='genres_updated_state', include_prior_dates=True) or str(datetime.min)
+    if isinstance(last_updated, list):
+        last_updated = last_updated[-1]
     cursor.execute(sql, (last_updated,))
 
     logging.info('SQL query: %s', sql % last_updated)
@@ -75,6 +79,8 @@ def fetch_changed_people_movies_ids(ti: TaskInstance):
     )
 
     last_updated = ti.xcom_pull(key='people_updated_state', include_prior_dates=True) or str(datetime.min)
+    if isinstance(last_updated, list):
+        last_updated = last_updated[-1]
     movies_ids = set()
 
     for table in tables:
@@ -197,7 +203,7 @@ def es_create_index(ti: TaskInstance):
     logging.info(response)
 
 
-def write_to_es(ti):
+def write_to_es(ti: TaskInstance):
     elastic = Elasticsearch('http://elasticsearch:9200')
     raw = ti.xcom_pull(task_ids='enrich_results')
     if not raw:
@@ -278,8 +284,8 @@ def write_to_es(ti):
 
 with DAG(
     dag_id='Theatre_ETL',
-    schedule_interval=timedelta(minutes=1),
-    start_date=datetime(year=2023, month=2, day=1),
+    schedule='*/2 * * * *',
+    start_date=datetime(year=2025, month=10, day=1),
     catchup=False,
     max_active_runs=1,
 ) as dag:

@@ -11,7 +11,8 @@ services:
       - .env
 
   elasticsearch:
-    image: elasticsearch:8.17.2
+    image: elasticsearch:9.1.4
+    container_name: elasticsearch
     environment:
       - discovery.type=single-node
       - bootstrap.memory_lock=true
@@ -25,7 +26,7 @@ services:
         hard: -1
 
   kibana:
-    image: kibana:8.17.2
+    image: kibana:9.1.4
     container_name: kibana
     ports:
       - "5601:5601"
