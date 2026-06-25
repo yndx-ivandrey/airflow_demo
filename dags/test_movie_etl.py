@@ -5,6 +5,7 @@ from airflow.providers.standard.operators.python import PythonOperator
 from airflow.providers.postgres.hooks.postgres import PostgresHook
 from airflow.models.taskinstance import TaskInstance
 from airflow.providers.telegram.operators.telegram import TelegramOperator
+from airflow.providers.smtp.operators.smtp import EmailOperator
 from elasticsearch import Elasticsearch, helpers
 
 import logging
@@ -284,7 +285,7 @@ def write_to_es(ti: TaskInstance):
 
 with DAG(
     dag_id='Theatre_ETL',
-    schedule='*/2 * * * *',
+    schedule='*/3 * * * *',
     start_date=datetime(year=2025, month=10, day=1),
     catchup=False,
     max_active_runs=1,
@@ -308,14 +309,25 @@ with DAG(
     es_create_index = PythonOperator(task_id='es_create_index', python_callable=es_create_index)
     write_to_es = PythonOperator(task_id='write_to_es', python_callable=write_to_es)
 
-    send_notification = TelegramOperator(
-        telegram_conn_id='telegram_notify',
-        task_id='send_notification',
-        text='Было обновлено фильмов: {{ ti.xcom_pull(task_ids="write_to_es") }}',
+    # send_notification = TelegramOperator(
+    #     telegram_conn_id='telegram_notify',
+    #     task_id='send_notification',
+    #     text='Было обновлено фильмов: {{ ti.xcom_pull(task_ids="write_to_es") }}',
+    # )
+
+    send_notification_email = EmailOperator(
+        task_id='send_notification_email',
+        to='team_alerts@example.com',
+        subject='Airflow Alert: DAG {{ dag.dag_id }} executed successfully',
+        html_content="""
+        <h3>Pipeline Run Success</h3>
+        <p>Было обновлено фильмов: {{ ti.xcom_pull(task_ids="write_to_es") }}</p>
+        """,
+        conn_id="smtp_default",
     )
 
     es_create_index >> enrich_results
     task_get_movies_ids >> accumulate_results
     fetch_changed_genres_movies_ids >> accumulate_results
     fetch_changed_people_movies_ids >> accumulate_results
-    accumulate_results >> enrich_results >> write_to_es >> send_notification
+    accumulate_results >> enrich_results >> write_to_es >> send_notification_email

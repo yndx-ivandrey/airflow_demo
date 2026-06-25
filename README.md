@@ -30,21 +30,31 @@ docker compose -f docker-compose-airflow.yaml -f docker-compose.yaml up -d
 
 ![airflow-dag.png](images/airflow-dag.png)
 
-Для работы ETL необходимо определить соединение c postgres как на изображении (данные подключения из .env и название контейнера из docker-compose.yml). Admin -> Connections -> Add connection
+Для работы ETL необходимо определить соединение c postgres как на изображении (данные подключения из .env и название контейнера из docker-compose.yml). Admin → Connections → Add connection
 
 ![postgres_connection.png](images/postgres_connection.png)
 
-**ВАЖНО!** в настройках postgres необходимо также указать в Extra Fields JSON:
+**ВАЖНО!** В настройках postgres необходимо также указать в Extra Fields JSON:
 ```json
 {
   "cursor": "dictcursor"
 }
 ```
 
-Для отправки сообщений в Telegram необходимо разегистирировать бота и определить соединение как на изображении:
+Для отправки сообщений в Telegram необходимо зарегистрировать бота и определить соединение как на изображении:
 
 ![telegram_connection.jpg](images/telegram_connection.png)
 
 ### Весь код находится в `dags/test_movie_etl.py`
+
+Для отправки уведомлений по Email необходимо настроить подключение:
+
+| Настройка        | Значение                                                                                                                                                               |
+|------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Connection Id    | smtp_default                                                                                                                                                           |
+| Connection Type  | Email                                                                                                                                                                  |
+| Host             | Mailer                                                                                                                                                                 |
+| Port             | 1025                                                                                                                                                                   | 
+| Extra Fiels JSON | <pre><code>{<br>  "from_email": "airflow@example.com",<br>  "ssl": false,<br>  "starttls": false,<br>  "disable_tls": true,<br>  "disable_ssl": true<br>}</code></pre> |
 
 Для работы с DAG (папка ./dags) в PyCharm/VSCode выполнить `uv sync --locked` для установки виртуального окружения с пакетами airflow.

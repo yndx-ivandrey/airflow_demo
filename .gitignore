@@ -8,4 +8,4 @@ logs/**
 .vscode
 .idea
 *.sqlite
-.python-version
+
